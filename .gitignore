@@ -20,3 +20,6 @@ polyglot/polyglot-benchmark/
 polyglot/predictions/
 
 .wrangler/
+
+
+.env

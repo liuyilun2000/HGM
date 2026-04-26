@@ -33,6 +33,21 @@
         padding: 1rem 1.25rem;
         margin: 1rem 0;
       }
+      .diag-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .diag-list li {
+        padding: 0.35rem 0;
+        border-bottom: 1px solid #2b355d;
+      }
+      .diag-list li:last-child {
+        border-bottom: none;
+      }
+      .label {
+        color: #9cc2ff;
+      }
       a {
         color: #9cc2ff;
       }
@@ -74,6 +89,120 @@
           directory and can be deployed with Wrangler.
         </p>
       </section>
+
+      <section class="card">
+        <h2>Node / Host Diagnostics</h2>
+        <p>
+          This section shows hardware and runtime details available to browser
+          JavaScript. Some host-level metrics (exact server CPU model, full RAM,
+          disk layout, and GPU inventory) are intentionally not exposed by
+          Cloudflare Pages or modern browsers.
+        </p>
+        <ul class="diag-list" id="diag-list">
+          <li>Loading diagnostics...</li>
+        </ul>
+      </section>
     </main>
+    <script>
+      function formatBytes(value) {
+        if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+          return "Unavailable";
+        }
+        const units = ["B", "KB", "MB", "GB", "TB"];
+        let size = value;
+        let idx = 0;
+        while (size >= 1024 && idx < units.length - 1) {
+          size /= 1024;
+          idx += 1;
+        }
+        return `${size.toFixed(2)} ${units[idx]}`;
+      }
+
+      function addRow(rows, label, value) {
+        rows.push(
+          `<li><span class="label">${label}:</span> ${value ?? "Unavailable"}</li>`,
+        );
+      }
+
+      function getGpuRenderer() {
+        try {
+          const canvas = document.createElement("canvas");
+          const gl =
+            canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+          if (!gl) return "Unavailable (WebGL disabled)";
+
+          const ext = gl.getExtension("WEBGL_debug_renderer_info");
+          if (!ext) return "Unavailable (debug renderer extension blocked)";
+
+          const renderer = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+          return renderer || "Unavailable";
+        } catch (_error) {
+          return "Unavailable";
+        }
+      }
+
+      async function renderDiagnostics() {
+        const rows = [];
+        const nav = navigator;
+
+        addRow(rows, "Platform", nav.platform || "Unavailable");
+        addRow(rows, "User agent", nav.userAgent || "Unavailable");
+        addRow(rows, "CPU logical cores", nav.hardwareConcurrency ?? "Unavailable");
+        addRow(
+          rows,
+          "Approx. device memory",
+          nav.deviceMemory ? `${nav.deviceMemory} GB` : "Unavailable",
+        );
+        addRow(rows, "GPU renderer (browser-exposed)", getGpuRenderer());
+
+        if (nav.connection) {
+          addRow(rows, "Network type", nav.connection.effectiveType || "Unavailable");
+          addRow(
+            rows,
+            "Network downlink",
+            nav.connection.downlink
+              ? `${nav.connection.downlink} Mbps`
+              : "Unavailable",
+          );
+          addRow(
+            rows,
+            "Network RTT",
+            nav.connection.rtt ? `${nav.connection.rtt} ms` : "Unavailable",
+          );
+        } else {
+          addRow(rows, "Network info", "Unavailable");
+        }
+
+        if (nav.storage && nav.storage.estimate) {
+          try {
+            const estimate = await nav.storage.estimate();
+            addRow(rows, "Storage quota", formatBytes(estimate.quota));
+            addRow(rows, "Storage usage", formatBytes(estimate.usage));
+          } catch (_error) {
+            addRow(rows, "Storage quota", "Unavailable");
+            addRow(rows, "Storage usage", "Unavailable");
+          }
+        } else {
+          addRow(rows, "Storage quota", "Unavailable");
+          addRow(rows, "Storage usage", "Unavailable");
+        }
+
+        addRow(
+          rows,
+          "Host machine full RAM / disk / GPU inventory",
+          "Not exposed to client-side web pages",
+        );
+        addRow(
+          rows,
+          "Cloudflare edge node hardware details",
+          "Not exposed by Cloudflare Pages runtime",
+        );
+
+        const container = document.getElementById("diag-list");
+        container.innerHTML = rows.join("");
+      }
+
+      renderDiagnostics();
+    </script>
   </body>
 </html>
