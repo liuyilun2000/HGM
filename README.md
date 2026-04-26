@@ -54,6 +54,29 @@ python -m polyglot.prepare_polyglot_dataset
 ./run.sh
 ```
 
+## Host on Cloudflare Pages
+
+This repository now includes Cloudflare Pages configuration:
+- `wrangler.toml`
+- `public/index.html`
+
+Deploy the static site with Wrangler:
+
+```bash
+# Install wrangler (Node.js required)
+npm install -g wrangler
+
+# Authenticate with Cloudflare
+wrangler login
+
+# Deploy the site in public/
+wrangler pages deploy public --project-name hgm-site
+```
+
+For automatic deploys, create a Cloudflare Pages project connected to this repo and set:
+- Build command: *(empty)*
+- Build output directory: `public`
+
 ## Safety Consideration
 > [!WARNING]  
 > This repository involves executing untrusted, model-generated code. We strongly advise users to be aware of the associated safety risks. While it is highly unlikely that such code will perform overtly malicious actions under our current settings and with the models we use, it may still behave destructively due to limitations in model capability or alignment. By using this repository, you acknowledge and accept these risks.
