@@ -48,6 +48,23 @@
       .label {
         color: #9cc2ff;
       }
+      .muted {
+        color: #aab3cf;
+      }
+      .package-box {
+        max-height: 360px;
+        overflow: auto;
+        border: 1px solid #2b355d;
+        border-radius: 8px;
+        padding: 0.75rem;
+        background: #0e1530;
+      }
+      .package-list {
+        margin: 0;
+        padding-left: 1rem;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.9rem;
+      }
       a {
         color: #9cc2ff;
       }
@@ -101,6 +118,21 @@
         <ul class="diag-list" id="diag-list">
           <li>Loading diagnostics...</li>
         </ul>
+      </section>
+
+      <section class="card">
+        <h2>Remote Build Python Packages</h2>
+        <p class="muted">
+          Loaded from <code>/packages.json</code> generated during Cloudflare
+          build/deploy. This reflects the remote build environment, not your
+          local machine.
+        </p>
+        <p id="pkg-meta" class="muted">Loading package report...</p>
+        <div class="package-box">
+          <ol id="pkg-list" class="package-list">
+            <li>Loading...</li>
+          </ol>
+        </div>
       </section>
     </main>
     <script>
@@ -202,7 +234,32 @@
         container.innerHTML = rows.join("");
       }
 
+      async function renderRemotePackages() {
+        const pkgMeta = document.getElementById("pkg-meta");
+        const pkgList = document.getElementById("pkg-list");
+        try {
+          const response = await fetch("./packages.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const packages = await response.json();
+          if (!Array.isArray(packages)) {
+            throw new Error("Invalid package JSON format");
+          }
+
+          pkgMeta.textContent = `Loaded ${packages.length} packages from remote build output.`;
+          pkgList.innerHTML = packages
+            .map((pkg) => `<li>${pkg.name}==${pkg.version}</li>`)
+            .join("");
+        } catch (error) {
+          pkgMeta.textContent =
+            "No remote package report found yet. Configure build/deploy to generate public/packages.json.";
+          pkgList.innerHTML = `<li>Failed to load packages.json (${error.message}).</li>`;
+        }
+      }
+
       renderDiagnostics();
+      renderRemotePackages();
     </script>
   </body>
 </html>

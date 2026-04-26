@@ -67,6 +67,12 @@ Optional JSON output:
 python tools/list_installed_packages.py --json
 ```
 
+Write JSON to file:
+
+```bash
+python tools/list_installed_packages.py --json --output public/packages.json
+```
+
 ## Host on Cloudflare Pages
 
 This repository now includes Cloudflare Pages configuration:
@@ -87,8 +93,11 @@ wrangler pages deploy public --project-name hgm
 ```
 
 For automatic deploys, create a Cloudflare Pages project connected to this repo and set:
-- Build command: *(empty)*
+- Build command: `python tools/list_installed_packages.py --json --output public/packages.json`
 - Build output directory: `public`
+- Deploy command: `npx wrangler pages deploy public --project-name hgm`
+
+This setup makes the webpage show package versions from the **remote Cloudflare build environment** via `public/packages.json`.
 
 ## Safety Consideration
 > [!WARNING]  

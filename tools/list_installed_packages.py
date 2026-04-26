@@ -29,6 +29,11 @@ def main():
         action="store_true",
         help="Output package list as JSON.",
     )
+    parser.add_argument(
+        "--output",
+        default=None,
+        help="Write output to a file path instead of stdout.",
+    )
     args = parser.parse_args()
 
     try:
@@ -39,12 +44,26 @@ def main():
 
     if args.json:
         payload = [{"name": name, "version": version} for name, version in packages]
-        print(json.dumps(payload, indent=2))
+        content = json.dumps(payload, indent=2)
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as f:
+                f.write(content)
+                f.write("\n")
+            print(f"Wrote package JSON to: {args.output}")
+        else:
+            print(content)
         return
 
-    print(f"Installed packages: {len(packages)}")
-    for name, version in packages:
-        print(f"{name}=={version}")
+    lines = [f"Installed packages: {len(packages)}"]
+    lines.extend(f"{name}=={version}" for name, version in packages)
+    content = "\n".join(lines)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.write("\n")
+        print(f"Wrote package report to: {args.output}")
+    else:
+        print(content)
 
 
 if __name__ == "__main__":
