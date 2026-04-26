@@ -70,7 +70,7 @@ npm install -g wrangler
 wrangler login
 
 # Deploy the site in public/
-wrangler pages deploy public --project-name hgm-site
+wrangler pages deploy public --project-name hgm
 ```
 
 For automatic deploys, create a Cloudflare Pages project connected to this repo and set:
