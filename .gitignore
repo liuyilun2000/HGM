@@ -18,3 +18,5 @@ results/
 polyglot/polyglot_benchmark_metadata.json
 polyglot/polyglot-benchmark/
 polyglot/predictions/
+
+.wrangler/
