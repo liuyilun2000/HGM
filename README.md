@@ -54,6 +54,19 @@ python -m polyglot.prepare_polyglot_dataset
 ./run.sh
 ```
 
+## Environment Package Check
+Print all installed Python packages and versions:
+
+```bash
+python tools/list_installed_packages.py
+```
+
+Optional JSON output:
+
+```bash
+python tools/list_installed_packages.py --json
+```
+
 ## Host on Cloudflare Pages
 
 This repository now includes Cloudflare Pages configuration:
