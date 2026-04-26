@@ -8,11 +8,6 @@
 
 Repository for **[Huxley-Gödel Machine](https://arxiv.org/abs/2510.21614)** (HGM), an approximation of the Gödel Machine: the theoretical optimal self-improving machine. HGM makes this concept practical with coding agents that iteratively rewrite themselves, using estimates of the promise of entire subtrees (clades) to decide which self-modifications to expand.
 
-## News
-
-* 🔥 **[02/06]** Congrats! HGM gets oral presentation in ICLR 2026. See you in Brazil 🇧🇷!
-
-
 ## Setup
 ```bash
 # API keys, add to ~/.bashrc
